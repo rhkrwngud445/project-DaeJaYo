@@ -13,6 +13,7 @@ import com.google.gson.annotations.SerializedName;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -64,17 +65,17 @@ public class MainActivity extends AppCompatActivity {
         RecipeInterface recipeInterface = mRetrofit.create(RecipeInterface.class);
 
         Call<DataClass> call = recipeInterface.getRecipe("568996252afd631611d12bb9f54eb5a5d431445805a6fccabe8c16b3df67495f",
-                "json", "Grid_20150827000000000226_1", 1, 2);
+                "json", "Grid_20150827000000000226_1", 1, 5);
         call.enqueue(new Callback<DataClass>() {
             @Override
             public void onResponse(Call<DataClass> call, Response<DataClass> response) {
                 DataClass result = response.body();
-                Log.d("mainAcitvity", String.valueOf(response.code()));
+                Log.d("mainAcitvity", String.valueOf(response.body().grid.row.get(0).recipeId));
             }
 
             @Override
             public void onFailure(Call<DataClass> call, Throwable t) {
-                Log.d("mainAcitvity","failure");
+                Log.d("mainAcitvity",t.getMessage());
             }
         });
     }
@@ -95,20 +96,41 @@ interface RecipeInterface {
 class DataClass {
 
     // @SerializedName으로 일치시켜 주지않을 경우엔 클래스 변수명이 일치해야함
-    @SerializedName("RECIPE_ID")
-    public String recipeId;
-
-    @SerializedName("body")
-    public String body;
-
+    @SerializedName("Grid_20150827000000000226_1")
+    Grid grid;
 
     // toString()을 Override 해주지 않으면 객체 주소값을 출력함
-    @Override
-    public String toString() {
-        return "PostResult{" +
-                "name=" + recipeId +
-                ", nickname=" + body + '\'' +
-                '}';
-    }
 }
+class Grid {
+    @SerializedName("row")
+    List<row> row;
+
+
+}
+class row{
+    @SerializedName("RECIPE_ID")
+     String recipeId = null;
+
+    @SerializedName("RECIPE_NM_KO")
+    private String recope_nm_ko = null;
+
+    @SerializedName("SUMRY")
+    private String sumry  = null  ;
+
+    @SerializedName("NATION_NM")
+    private String nation_nm = null  ;
+
+    @SerializedName("TY_CODE")
+    private String ty_code = null  ;
+
+    @SerializedName("TY_NM")
+    private String ty_nm = null  ;
+
+    @SerializedName("COOKING_TIME")
+    private String cooking_time = null  ;
+
+    @SerializedName("CALORIE")
+    private String calorie ;
+}
+
 
