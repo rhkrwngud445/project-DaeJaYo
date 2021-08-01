@@ -165,7 +165,6 @@ public class MainActivity extends AppCompatActivity {
         public void onStatus(String provider, int status, Bundle extras){}
     }
 
-
     public void makeRequest(){
         String url = "https://api.openweathermap.org/data/2.5/weather?lat="+lat + "&lon=" + lon + "&appid=70d0dd949829ada26da501a0cfbe0fad";
         StringRequest request = new StringRequest(Request.Method.GET, url,
