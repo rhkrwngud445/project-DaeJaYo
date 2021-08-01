@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.ImageButton;
 
 public class select_menu extends AppCompatActivity {
-    public static final int REQUEST_CODE_REC = 102;
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -32,7 +31,7 @@ public class select_menu extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), receipe.class);
-                startActivityForResult(intent,REQUEST_CODE_REC);
+                startActivity(intent);
             }
         });
 
