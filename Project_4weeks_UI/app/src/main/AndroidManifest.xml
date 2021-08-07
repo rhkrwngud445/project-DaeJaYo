@@ -13,13 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Design.NoActionBar">
-<<<<<<< HEAD
-        <activity android:name=".RecipeActivity">
-=======
-        <activity android:name=".receipe"></activity>
         <activity android:name=".select_menu" />
         <activity android:name=".MainActivity">
->>>>>>> 5ef4767faf6e3829e52076a98134fea36bd8570c
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
