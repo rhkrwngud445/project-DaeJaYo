@@ -3,16 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-<<<<<<< HEAD:Project_4weeks_UI/app/src/main/res/layout/receipe.xml
     android:orientation="vertical">
-=======
     android:background="@drawable/background"
     android:orientation="vertical"
     android:paddingLeft="50dp"
     android:paddingTop="99dp"
     android:paddingRight="50dp"
     android:paddingBottom="50dp">
->>>>>>> 5ef4767faf6e3829e52076a98134fea36bd8570c:Project_4weeks_UI/app/src/main/res/layout/activity_receipe.xml
 
     <LinearLayout
         android:layout_width="match_parent"
