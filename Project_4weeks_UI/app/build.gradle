@@ -28,9 +28,11 @@ android {
 }
 
 dependencies {
+    implementation 'com.yanzhenjie:permission:2.0.3' // 위험 권한 자동 부여
+    implementation 'com.android.volley:volley:1.2.0'
+    implementation 'com.google.code.gson:gson:2.8.5' //GSON (선택)
     implementation 'com.squareup.retrofit2:retrofit:2.6.2' // 레트로핏 설치 (필수)
     implementation 'com.squareup.retrofit2:converter-gson:2.6.2' // 컨버터 (선택)
-    implementation 'com.google.code.gson:gson:2.8.5' //GSON (선택)
 
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation platform('com.google.firebase:firebase-bom:28.2.1')
