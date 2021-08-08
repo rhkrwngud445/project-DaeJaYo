@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,7 +33,7 @@ public class select_menu extends AppCompatActivity {
     // MainActivity로 부터 선택된 카테고리 이름 받아오기
 
     public TextView tv_category; // 카테고리 이름을 출력할 textView
-
+    public Button bt_addmenu; // 메뉴 추가 버튼
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
@@ -47,6 +48,15 @@ public class select_menu extends AppCompatActivity {
 
         tv_category = findViewById(R.id.tv_category);
         tv_category.setText(selected_category_KR);
+
+        bt_addmenu = findViewById(R.id.bt_addmenu);
+        bt_addmenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), add_menu.class);
+                startActivity(intent);
+            }
+        });
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true); // recyclerView 성능강화
