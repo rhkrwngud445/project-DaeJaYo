@@ -35,7 +35,7 @@ import retrofit2.http.Query;
 
 public class RecipeActivity extends AppCompatActivity {
     private DatabaseReference  mDBReference;
-    String ingre = null;
+    String ingre = "";
     private ArrayList<RecipeItem> mData = new ArrayList<RecipeItem>() ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,9 +56,10 @@ public class RecipeActivity extends AppCompatActivity {
                 Glide.with(iv_title.getContext()).load(dataSnapshot.child("img").getValue().toString()).into(iv_title);
                 tv_name.setText(dataSnapshot.child("name").getValue().toString());;
                 for (DataSnapshot ingreData : dataSnapshot.child("ingre").getChildren()) {
-                    ingre += ingreData.child("ingre_name").getValue().toString()+" "+ingreData.child("ingre_count").getValue().toString()
-                            +ingreData.child("ingre_unit").getValue().toString()+ "  ";
-
+                    if(ingreData.child("ingre_name").getValue().toString()!= null){
+                        ingre += ingreData.child("ingre_name").getValue().toString()+" "+ingreData.child("ingre_count").getValue().toString()
+                                +ingreData.child("ingre_unit").getValue().toString()+ "  ";
+                    }
                 }
                 for (DataSnapshot listData : dataSnapshot.child("recipe").getChildren()) {
                     mData.add(new RecipeItem(listData.child("img").getValue().toString(),
@@ -77,9 +78,8 @@ public class RecipeActivity extends AppCompatActivity {
             }
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setLayoutManager(new LinearLayoutManager(this,RecyclerView.HORIZONTAL,false));
 
-
+        recyclerView.setLayoutManager(new LinearLayoutManager(this,RecyclerView.VERTICAL,false));
 
     }
 
@@ -88,4 +88,5 @@ public class RecipeActivity extends AppCompatActivity {
         super.onDestroy();
         ingre = null;
     }
+
 }
