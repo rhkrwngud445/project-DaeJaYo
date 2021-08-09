@@ -40,7 +40,7 @@ public class RecipeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.receipe);
+        setContentView(R.layout.activity_receipe);
         ImageView iv_title = findViewById(R.id.iv_image_recipe);
         RecyclerView recyclerView = findViewById(R.id.rc_recipe);
         RecipeRecyclerAdapter adapter = new RecipeRecyclerAdapter();
