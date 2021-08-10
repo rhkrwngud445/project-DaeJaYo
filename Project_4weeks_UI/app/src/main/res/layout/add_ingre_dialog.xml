@@ -6,7 +6,7 @@
     android:background="@color/white">
 
     <EditText
-        android:id="@+id/ptv_deleteIngre_dialog_number"
+        android:id="@+id/etv_addIngre_dialog_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
@@ -16,13 +16,13 @@
         android:textColor="@color/black"
         android:textColorHighlight="#E91E63"
         android:textColorHint="#72CFFA"
-        app:layout_constraintBottom_toTopOf="@id/ptv_addIngre_dialog_count"
+        app:layout_constraintBottom_toTopOf="@id/etv_addIngre_dialog_count"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/ptv_addIngre_dialog_count"
+        android:id="@+id/etv_addIngre_dialog_count"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
@@ -32,13 +32,13 @@
         android:textColor="@color/black"
         android:textColorHighlight="#E91E63"
         android:textColorHint="#72CFFA"
-        app:layout_constraintBottom_toTopOf="@id/ptv_addIngre_dialog_unit"
+        app:layout_constraintBottom_toTopOf="@id/etv_addIngre_dialog_unit"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ptv_deleteIngre_dialog_number" />
+        app:layout_constraintTop_toBottomOf="@id/etv_addIngre_dialog_name" />
 
     <EditText
-        android:id="@+id/ptv_addIngre_dialog_unit"
+        android:id="@+id/etv_addIngre_dialog_unit"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
@@ -48,18 +48,18 @@
         android:textColor="@color/black"
         android:textColorHighlight="#E91E63"
         android:textColorHint="#72CFFA"
-        app:layout_constraintBottom_toTopOf="@id/bt_dialog_submit"
+        app:layout_constraintBottom_toTopOf="@id/btn_addIngre_submit"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ptv_addIngre_dialog_count" />
+        app:layout_constraintTop_toBottomOf="@id/etv_addIngre_dialog_count" />
 
     <Button
-        android:id="@+id/bt_dialog_submit"
+        android:id="@+id/btn_addIngre_submit"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:text="추가"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ptv_addIngre_dialog_unit" />
+        app:layout_constraintTop_toBottomOf="@+id/etv_addIngre_dialog_unit" />
 </androidx.constraintlayout.widget.ConstraintLayout>

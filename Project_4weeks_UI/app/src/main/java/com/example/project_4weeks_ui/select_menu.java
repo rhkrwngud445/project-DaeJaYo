@@ -58,7 +58,7 @@ public class select_menu extends AppCompatActivity {
             }
         });
 
-        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView = findViewById(R.id.rec_menu);
         recyclerView.setHasFixedSize(true); // recyclerView 성능강화
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);

@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 selected_category_KR = (String) tv_noodle.getText();
                 selected_category_ENG = "noodle";
-                Intent intent = new Intent(getApplicationContext(), select_menu.class);
+                Intent intent = new Intent(getApplicationContext(), add_menu.class);
                 startActivity(intent);
             }
         });

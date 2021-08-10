@@ -44,12 +44,11 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/rec_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="100"
-        android:background="@color/white"
-        tools:listitem="@layout/recycler_view_item">
+        android:background="@color/white">
 
     </androidx.recyclerview.widget.RecyclerView>
 
