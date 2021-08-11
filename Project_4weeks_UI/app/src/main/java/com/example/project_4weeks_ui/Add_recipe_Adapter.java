@@ -32,7 +32,7 @@ public class Add_recipe_Adapter extends RecyclerView.Adapter<Add_recipe_Adapter.
     @Override
     public void onBindViewHolder(@NonNull AddViewHolder holder, int position) {
         Glide.with(holder.itemView)
-                .load(arrayList.get(position).getImg_storage())
+                .load(arrayList.get(position).getImg())
                 .into(holder.iv_addRecipeImg);
         holder.tv_addRecipeNum.setText(arrayList.get(position).getNum());
         holder.tv_addRecipeMessage.setText(arrayList.get(position).getTxt());

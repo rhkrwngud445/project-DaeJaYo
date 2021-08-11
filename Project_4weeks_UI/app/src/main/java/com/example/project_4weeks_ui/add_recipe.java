@@ -2,11 +2,11 @@ package com.example.project_4weeks_ui;
 
 public class add_recipe {
     String num;
-    String img_storage;
+    String img;
     String txt;
 
-    public add_recipe(String num, String img_storage, String txt) {
-        this.img_storage = img_storage;
+    public add_recipe(String num, String img, String txt) {
+        this.img = img;
         this.txt = txt;
         this.num = num;
     }
@@ -20,12 +20,12 @@ public class add_recipe {
     }
 
 
-    public String getImg_storage() {
-        return this.img_storage;
+    public String getImg() {
+        return this.img;
     }
 
-    public void setImg_storage(String img_storage) {
-        this.img_storage = img_storage;
+    public void setImg(String img) {
+        this.img = img;
     }
 
 

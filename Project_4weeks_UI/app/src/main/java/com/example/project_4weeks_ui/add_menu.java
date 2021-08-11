@@ -1,59 +1,86 @@
 package com.example.project_4weeks_ui;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.loader.content.CursorLoader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.annotations.NotNull;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.net.URI;
 import java.util.ArrayList;
 
 public class add_menu extends AppCompatActivity {
+    public String selected_category_ENG = ((MainActivity)MainActivity.context_MainActivity).selected_category_ENG; // 카테고리
+    public int curCategory_size = 0; //카테고리 원소 개수
+
+    private FirebaseStorage storage; // Firebase Storage
+    private DatabaseReference databaseRef;
+
+    private String mainImage_path; // 메뉴 메인 사진 경로 저장하는 변수
+    private String mainImage_url; // 메뉴 메인 사진 다운로드 url
+    private String menu_name; // 메뉴 이름
+    private ArrayList<String> info = new ArrayList<>(3); // 메뉴 정보를 담을 array
+    private String recipeImage_path; // 레시피 사진 경로 저장하는 변수
+    private ArrayList<String> array_recipeImage_url = new ArrayList<>(); // 레시피 사진 다운로드 url을 담을 list
+
+    private ArrayList<Ingredient> ingredient_array; // 추가될 메뉴의 재료정보 list
+    private ArrayList<add_recipe> recipe_array; // 추가될 메뉴의 레시피정보 list
+    private add_Ingre_Adapter ingre_adapter; // 재료정보 리사이클러뷰 어댑터
+    private Add_recipe_Adapter recipe_adapter; // 레시피정보 리사이클러뷰 어댑터
+
     private final int GALLERY_CODE_MainImage = 1112;
     private final int GALLERY_CODE_AddRecipe_Image = 1113;
-    ArrayList<Ingredient> ingredient_array; // 추가될 메뉴의 재료정보 list
-    ArrayList<add_recipe> recipe_array;
-    add_Ingre_Adapter ingre_adapter; // 재료정보 리사이클러뷰 어댑터
-    Add_recipe_Adapter recipe_adapter;
-    String storage;
+
+    String[] permission_list = {
+            android.Manifest.permission.READ_EXTERNAL_STORAGE
+    }; // 갤리러 권한 요청
 
     // 이미지 추가
-    ImageView iv_MenuImage ;
-    ImageView iv_addRecipeImg;
-    TextView test;
+    ImageView iv_MenuImage;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == RESULT_OK && data != null) {
+        if (resultCode == RESULT_OK && data != null) {
             // 대표 이미지를 선택하는 경우
             if (requestCode == GALLERY_CODE_MainImage) {
                 try {
                     Uri uri = data.getData();
+                    mainImage_path = getFullPathFromUri(this, uri); // 절대경로 저장
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                    Toast.makeText(getApplicationContext(), "사진이 성공적으로 추가되었습니다 !", Toast.LENGTH_SHORT).show();
+
                     if (bitmap.getWidth() > bitmap.getHeight()) {
                         bitmap = rotate(bitmap);
                     }
@@ -64,46 +91,59 @@ public class add_menu extends AppCompatActivity {
                 }
             }
             // 레시피 사진을 선택하는 경우
-            else if(requestCode == GALLERY_CODE_AddRecipe_Image){
-                Toast.makeText(getApplicationContext(),"123", Toast.LENGTH_SHORT).show();
-                try {
-                    Uri uri = data.getData();
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                    if (bitmap.getWidth() > bitmap.getHeight()) {
-                        bitmap = rotate(bitmap);
-                    }
-                    storage = getFilePath(uri);
-                    iv_addRecipeImg.setImageBitmap(MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(storage)));
-                    test.setText("1234");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
+            else if (requestCode == GALLERY_CODE_AddRecipe_Image) {
+                Uri uri = data.getData();
+                recipeImage_path = getFullPathFromUri(this, uri); // 절대경로 저장
+                Toast.makeText(getApplicationContext(), "사진이 성공적으로 추가되었습니다 !", Toast.LENGTH_SHORT).show();
             }
         }
     }
+
     // 사진 회전 방지
-    private Bitmap rotate(Bitmap bitmap){
+    private Bitmap rotate(Bitmap bitmap) {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
 
         Matrix matrix = new Matrix();
         matrix.postRotate(90);
-        Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0,0, width, height, matrix, true);
+        Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
         return resizedBitmap;
     }
 
     // 갤러리에서 선택한 사진 절대경로 구하기
-    private String getFilePath(Uri uri){
-        String path;
-        String[] proj = {MediaStore.Images.Media.DATA};
-        CursorLoader cursorLoader = new CursorLoader(this,uri,proj,null,null,null);
-        Cursor cursor = cursorLoader.loadInBackground();
-        int index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        path = cursor.getString(index);
-        cursor.close();
-        return path;
+    public static String getFullPathFromUri(Context ctx, Uri fileUri) {
+        String fullPath = null;
+        final String column = "_data";
+        Cursor cursor = ctx.getContentResolver().query(fileUri, null, null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            String document_id = cursor.getString(0);
+            if (document_id == null) {
+                for (int i = 0; i < cursor.getColumnCount(); i++) {
+                    if (column.equalsIgnoreCase(cursor.getColumnName(i))) {
+                        fullPath = cursor.getString(i);
+                        break;
+                    }
+                }
+            } else {
+                document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
+                cursor.close();
+
+                final String[] projection = {column};
+                try {
+                    cursor = ctx.getContentResolver().query(
+                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                            projection, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
+                    if (cursor != null) {
+                        cursor.moveToFirst();
+                        fullPath = cursor.getString(cursor.getColumnIndexOrThrow(column));
+                    }
+                } finally {
+                    if (cursor != null) cursor.close();
+                }
+            }
+        }
+        return fullPath;
     }
 
 
@@ -112,16 +152,19 @@ public class add_menu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_menu);
         iv_MenuImage = findViewById(R.id.iv_MenuImg);
-        iv_addRecipeImg = findViewById(R.id.iv_addRecipeImg);
-        test = findViewById(R.id.test);
+        checkPermission(); // 갤러리 권한체크
+
+        //curCategory_size = ((select_menu)select_menu.context_select_menu).curCategory_size; // 메뉴개수 가져오기
+
+
+
         // 대표 이미지 추가 버튼
-        Button btn_add_MenuImg = (Button)findViewById(R.id.btn_add_MenuImg);
+        Button btn_add_MenuImg = (Button) findViewById(R.id.btn_add_MenuImg);
         btn_add_MenuImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/*");
-
                 startActivityForResult(intent, GALLERY_CODE_MainImage);
 
             }
@@ -129,7 +172,7 @@ public class add_menu extends AppCompatActivity {
 
 
         // 재료 추가 리사이클러뷰 관련 코드
-        RecyclerView rec_addIngre = (RecyclerView)findViewById(R.id.rec_addIngre);
+        RecyclerView rec_addIngre = (RecyclerView) findViewById(R.id.rec_addIngre);
         LinearLayoutManager addIngre_layoutManager = new LinearLayoutManager(this);
         rec_addIngre.setLayoutManager(addIngre_layoutManager);
         ingredient_array = new ArrayList<>();
@@ -138,7 +181,7 @@ public class add_menu extends AppCompatActivity {
         // 재료 추가 리사이클러뷰 관련 코드 end
 
         // 재료 추가 버튼
-        Button btn_addIngre = (Button)findViewById(R.id.btn_addIngre);
+        Button btn_addIngre = (Button) findViewById(R.id.btn_addIngre);
         btn_addIngre.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -146,10 +189,10 @@ public class add_menu extends AppCompatActivity {
                 View view = LayoutInflater.from(add_menu.this).inflate(R.layout.add_ingre_dialog, null, false);
                 addIngre_dialog.setView(view); // 출력할 dialog에 custon dialog 적용
 
-                Button btn_submit = (Button)view.findViewById(R.id.btn_addIngre_submit); // 추가 버튼
-                EditText inputName = (EditText)view.findViewById(R.id.etv_addIngre_dialog_name);
-                EditText inputCount = (EditText)view.findViewById(R.id.etv_addIngre_dialog_count);
-                EditText inputUnit = (EditText)view.findViewById(R.id.etv_addIngre_dialog_unit);
+                Button btn_submit = (Button) view.findViewById(R.id.btn_addIngre_submit); // 추가 버튼
+                EditText inputName = (EditText) view.findViewById(R.id.etv_addIngre_dialog_name);
+                EditText inputCount = (EditText) view.findViewById(R.id.etv_addIngre_dialog_count);
+                EditText inputUnit = (EditText) view.findViewById(R.id.etv_addIngre_dialog_unit);
 
                 AlertDialog dialog = addIngre_dialog.create();
                 dialog.show(); // dialog show
@@ -160,7 +203,7 @@ public class add_menu extends AppCompatActivity {
                         String name = inputName.getText().toString();
                         String count = inputCount.getText().toString();
                         String unit = inputUnit.getText().toString();
-                        Ingredient new_ingredient = new Ingredient(Integer.toString(ingredient_array.size()+1), name, count, unit);
+                        Ingredient new_ingredient = new Ingredient(Integer.toString(ingredient_array.size() + 1), name, count, unit);
                         ingredient_array.add(new_ingredient);
                         ingre_adapter.notifyDataSetChanged();
                         dialog.dismiss();
@@ -171,53 +214,55 @@ public class add_menu extends AppCompatActivity {
         });
 
         // 재료 삭제 버튼
-        Button btn_deleteIngre = (Button)findViewById(R.id.btn_deleteIngre);
+        Button btn_deleteIngre = (Button) findViewById(R.id.btn_deleteIngre);
         btn_deleteIngre.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder deleteIngre_dialog = new AlertDialog.Builder(add_menu.this);
-                View view = LayoutInflater.from(add_menu.this).inflate(R.layout.delete_ingre_dialog, null, false);
-                deleteIngre_dialog.setView(view); // 출력할 dialog에 custon dialog 적용
+                if (ingredient_array.size() > 0) {
+                    AlertDialog.Builder deleteIngre_dialog = new AlertDialog.Builder(add_menu.this);
+                    View view = LayoutInflater.from(add_menu.this).inflate(R.layout.delete_ingre_dialog, null, false);
+                    deleteIngre_dialog.setView(view); // 출력할 dialog에 custon dialog 적용
 
-                Button btn_submit = (Button)view.findViewById(R.id.btn_addIngre_submit); // 삭제 버튼
-                EditText delete_num = (EditText)view.findViewById(R.id.etv_addIngre_dialog_name);
-                AlertDialog dialog = deleteIngre_dialog.create();
-                dialog.show();
+                    Button btn_submit = (Button) view.findViewById(R.id.btn_delete_submit); // 삭제 버튼
+                    EditText delete_num = (EditText) view.findViewById(R.id.etv_deleteIngre_dialog_num);
+                    AlertDialog dialog = deleteIngre_dialog.create();
+                    dialog.show();
 
-                btn_submit.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if(!TextUtils.isEmpty(delete_num.getText())){
-                            int num = Integer.parseInt(delete_num.getText().toString());
-                            if(num <= 0 || num > ingredient_array.size()){
-                                Toast.makeText(getApplicationContext(), "잘못된 숫자를 입력하셨습니다.\n 다시 입력해주세요",Toast.LENGTH_SHORT).show();
-                            }
-                            else{
-                                ingredient_array.remove(num -1);
-                                ingre_adapter.notifyItemRemoved(num-1);
-                                for(int i =0  ; i < ingredient_array.size(); i++){
-                                    int cur_num = Integer.parseInt(ingredient_array.get(i).get_ingre_num());
-                                    if(cur_num > num){
-                                        ingredient_array.get(i).set_ingre_num(Integer.toString(cur_num-1));
+                    btn_submit.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (!TextUtils.isEmpty(delete_num.getText())) {
+                                int num = Integer.parseInt(delete_num.getText().toString());
+                                if (num <= 0 || num > ingredient_array.size()) {
+                                    Toast.makeText(getApplicationContext(), "잘못된 숫자를 입력하셨습니다.\n 다시 입력해주세요", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    ingredient_array.remove(num - 1);
+                                    ingre_adapter.notifyItemRemoved(num - 1);
+                                    for (int i = 0; i < ingredient_array.size(); i++) {
+                                        int cur_num = Integer.parseInt(ingredient_array.get(i).get_ingre_num());
+                                        if (cur_num > num) {
+                                            ingredient_array.get(i).set_ingre_num(Integer.toString(cur_num - 1));
+                                        }
                                     }
+                                    ingre_adapter.notifyDataSetChanged();
+                                    dialog.dismiss();
                                 }
-                                ingre_adapter.notifyDataSetChanged();
-                                dialog.dismiss();
+                            } else {
+                                Toast.makeText(getApplicationContext(), "숫자를 입력해주세요.", Toast.LENGTH_SHORT).show();
                             }
-                        }
-                        else{
-                            Toast.makeText(getApplicationContext(), "숫자를 입력해주세요.",Toast.LENGTH_SHORT).show();
-                        }
 
-                    }
-                });
-
+                        }
+                    });
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "삭제할 재료가 없습니다 !", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
 
         // 레시피 추가 리사이클러뷰 관련 코드
-        RecyclerView rec_addRecipe = (RecyclerView)findViewById(R.id.rec_addRecipe);
+        RecyclerView rec_addRecipe = (RecyclerView) findViewById(R.id.rec_addRecipe);
         LinearLayoutManager addRecipe_layoutManager = new LinearLayoutManager(this);
         rec_addRecipe.setLayoutManager(addRecipe_layoutManager);
         recipe_array = new ArrayList<>();
@@ -227,27 +272,27 @@ public class add_menu extends AppCompatActivity {
 
 
         // 레시피 추가 버튼
-        Button btn_addRecipe = (Button)findViewById(R.id.btn_addRecipe);
+        Button btn_addRecipe = (Button) findViewById(R.id.btn_addRecipe);
         btn_addRecipe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder addRecipe_dialog = new AlertDialog.Builder(add_menu.this);
-                View view = LayoutInflater.from(add_menu.this).inflate(R.layout.add_recipe_dialog,null,false);
+                View view = LayoutInflater.from(add_menu.this).inflate(R.layout.add_recipe_dialog, null, false);
                 addRecipe_dialog.setView(view);
 
-                Button btn_submit = (Button)view.findViewById(R.id.btn_addRecipe_submit); // 추가 버튼
-                EditText inputTxT = (EditText)view.findViewById(R.id.etv_addRecipe_dialog_txt);
+                Button btn_submit = (Button) view.findViewById(R.id.btn_addRecipe_submit); // 추가 버튼
+                EditText inputTxT = (EditText) view.findViewById(R.id.etv_addRecipe_dialog_txt);
                 AlertDialog dialog = addRecipe_dialog.create();
                 dialog.show();
 
                 // 레시피 사진 추가 버튼
-                Button btn_addRecipe_Img = (Button)view.findViewById(R.id.btn_addRecipe_Img);
+                Button btn_addRecipe_Img = (Button) view.findViewById(R.id.btn_addRecipe_Img);
                 btn_addRecipe_Img.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                         intent.setType("image/*");
-                        startActivityForResult(Intent.createChooser(intent,""), GALLERY_CODE_AddRecipe_Image);
+                        startActivityForResult(Intent.createChooser(intent, ""), GALLERY_CODE_AddRecipe_Image);
                     }
                 });
 
@@ -255,19 +300,17 @@ public class add_menu extends AppCompatActivity {
                 btn_submit.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(storage == null){
-                            Toast.makeText(getApplicationContext(),"이미지를 선택해주세요 !", Toast.LENGTH_SHORT).show();
-                        }
-                        else {
-                            if(!TextUtils.isEmpty(inputTxT.getText())) {
-                                Toast.makeText(getApplicationContext(),"조리과정을 작성해주세요 !", Toast.LENGTH_SHORT).show();
-                            }
-                            else {
+                        if (recipeImage_path == null) {
+                            Toast.makeText(getApplicationContext(), "이미지를 선택해주세요 !", Toast.LENGTH_SHORT).show();
+                        } else {
+                            if (TextUtils.isEmpty(inputTxT.getText())) {
+                                Toast.makeText(getApplicationContext(), "조리과정을 작성해주세요 !", Toast.LENGTH_SHORT).show();
+                            } else {
                                 String txt = inputTxT.getText().toString();
-                                add_recipe new_recipe = new add_recipe(Integer.toString(recipe_array.size() + 1), storage, txt);
+                                add_recipe new_recipe = new add_recipe(Integer.toString(recipe_array.size() + 1), recipeImage_path, txt);
                                 recipe_array.add(new_recipe);
                                 recipe_adapter.notifyDataSetChanged();
-                                storage = null;
+                                recipeImage_path = null;
                                 dialog.dismiss();
                             }
                         }
@@ -276,21 +319,209 @@ public class add_menu extends AppCompatActivity {
             }
         });
 
+        // 레시피 삭제 버튼
+        Button btn_deleteRecipe = (Button) findViewById(R.id.btn_deleteRecipe);
+        btn_deleteRecipe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (recipe_array.size() > 0) {
+                    AlertDialog.Builder deleteIngre_dialog = new AlertDialog.Builder(add_menu.this);
+                    View view = LayoutInflater.from(add_menu.this).inflate(R.layout.delete_recipe_dialog, null, false);
+                    deleteIngre_dialog.setView(view); // 출력할 dialog에 custon dialog 적용
 
+                    Button btn_submit = (Button) view.findViewById(R.id.btn_delete_submit); // 삭제 버튼
+                    EditText delete_num = (EditText) view.findViewById(R.id.etv_deleteRecipe_dialog_num);
+                    AlertDialog dialog = deleteIngre_dialog.create();
+                    dialog.show();
+                    btn_submit.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (!TextUtils.isEmpty(delete_num.getText())) {
+                                int num = Integer.parseInt(delete_num.getText().toString());
+                                if (num <= 0 || num > recipe_array.size()) {
+                                    Toast.makeText(getApplicationContext(), "잘못된 숫자를 입력하셨습니다.\n 다시 입력해주세요", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    recipe_array.remove(num - 1);
+                                    recipe_adapter.notifyItemRemoved(num - 1);
+                                    for (int i = 0; i < recipe_array.size(); i++) {
+                                        int cur_num = Integer.parseInt(recipe_array.get(i).getNum());
+                                        if (cur_num > num) {
+                                            recipe_array.get(i).setNum(Integer.toString(cur_num - 1));
+                                        }
+                                    }
+
+                                    recipe_adapter.notifyDataSetChanged();
+                                    dialog.dismiss();
+                                }
+                            } else {
+                                Toast.makeText(getApplicationContext(), "숫자를 입력해주세요.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "삭제할 레시피가 없습니다 !", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        // 메뉴 등록 버튼
+        Button btn_register = (Button)findViewById(R.id.btn_register);
+        btn_register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // 이름 저장
+                EditText etv_addmenu_inputName = (EditText) findViewById(R.id.etv_addmenu_inputName);
+                menu_name = etv_addmenu_inputName.getText().toString();
+
+                // 메뉴정보 저장
+                EditText etv_addmenu_inputInfo1 = (EditText) findViewById(R.id.etv_addmenu_inputInfo1);
+                info.add(etv_addmenu_inputInfo1.getText().toString());
+                EditText etv_addmenu_inputInfo2 = (EditText) findViewById(R.id.etv_addmenu_inputInfo2);
+                info.add(etv_addmenu_inputInfo2.getText().toString());
+                EditText etv_addmenu_inputInfo3 = (EditText) findViewById(R.id.etv_addmenu_inputInfo3);
+                info.add(etv_addmenu_inputInfo3.getText().toString());
+
+                // 재료 정보는 IngredientArray에 있음
+
+                // 레시피 정보는 IngredientArray에 있음
+
+
+                // storage 참조 얻기
+                storage = FirebaseStorage.getInstance();
+                StorageReference storageRef = storage.getReferenceFromUrl("gs://project-daejayo.appspot.com");
+
+                // 메인 사진 Firebase Storage에 저장
+                if (mainImage_path == null) {
+                    Toast.makeText(getApplicationContext(), "대표 이미지를 등록하지 않았어요 !", Toast.LENGTH_SHORT).show();
+                }
+                /*
+                else if(menu_name == null){
+                    Toast.makeText(getApplicationContext(), "메뉴 이름을 입력하지 않았어요 !", Toast.LENGTH_SHORT).show();
+                }
+                else if(recipe_array.size() == 0){
+                    Toast.makeText(getApplicationContext(), "레시피 정보를 등록하지 않았어요 !", Toast.LENGTH_SHORT).show();
+                }
+                else if(ingredient_array.size() == 0){
+                    Toast.makeText(getApplicationContext(), "재료 정보를 등록하지 않았어요 !", Toast.LENGTH_SHORT).show();
+                }
+                 */
+                else {
+                    Uri main_file = Uri.fromFile(new File(mainImage_path));
+                    StorageReference riversRef = storageRef.child("images/" + main_file.getLastPathSegment());
+                    UploadTask uploadTask = riversRef.putFile(main_file);
+                    uploadTask.addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Toast.makeText(getApplicationContext(),"스토리지에 저장 성공",Toast.LENGTH_SHORT).show();
+                            storageRef.child("images/").child(main_file.getLastPathSegment()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    Toast.makeText(getApplicationContext(),uri.toString(),Toast.LENGTH_SHORT).show();
+                                    mainImage_url = uri.toString(); // main 이미지 url
+
+                                    // 레시피 사진 Firebase Storage에 저장
+
+                                    for (int i = 0; i < recipe_array.size(); i++) { // 추가된 레시피 단계 개수만큼 반복
+                                        Toast.makeText(getApplicationContext(), "for loop",Toast.LENGTH_SHORT).show();
+                                        int idx = i;
+                                        // Firebase Storage에 레시피 사진 업로드
+                                        Uri recipe_file = Uri.fromFile(new File(recipe_array.get(i).getImg()));
+                                        UploadTask recipe_uploadTask = riversRef.putFile(recipe_file);
+                                        // 레시피의 String img를 절대경로 --> 사진이 저장된 url로 바꿔줌
+                                        recipe_uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                            @Override
+                                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                storageRef.child("images/" + recipe_file.getLastPathSegment()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                    @Override
+                                                    public void onSuccess(Uri uri) {
+                                                        Toast.makeText(getApplicationContext(),uri.toString(), Toast.LENGTH_SHORT).show();
+                                                        recipe_array.get(idx).setImg(uri.toString());
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Toast.makeText(getApplicationContext(),"레시피 path -> url 변경에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(getApplicationContext(),"레시피 사진 등록에 실패했습니다", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    } // 레시피 사진 저장 end
+
+                                    // 추가될 새로운 menu 객체 생성
+                                    New_menu new_menu = new New_menu(menu_name, mainImage_url,Integer.toString(curCategory_size), info, ingredient_array, recipe_array);
+
+                                    // DB update
+                                    databaseRef = FirebaseDatabase.getInstance().getReference(); // database 참조 객체
+                                    databaseRef = databaseRef.child(selected_category_ENG).child(Integer.toString(curCategory_size - 1)); // child 생성
+                                    databaseRef.setValue(new_menu);
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(getApplicationContext(),"실패",Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }); // 메인 사진 저장 end
+                }
+            }
+        });
 
     }
 
 
-
-
+    // back 버튼
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == KeyEvent.KEYCODE_BACK){
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
             Intent intent = new Intent();
             setResult(RESULT_OK, intent);
             finish();
             return true;
         }
         return true;
+    }
+
+
+    // 갤러리 권한 얻기
+    public void checkPermission() {
+        //현재 안드로이드 버전이 6.0미만이면 메서드를 종료한다.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+            return;
+
+        for (String permission : permission_list) {
+            //권한 허용 여부를 확인한다.
+            int chk = checkCallingOrSelfPermission(permission);
+
+            if (chk == PackageManager.PERMISSION_DENIED) {
+                //권한 허용을여부를 확인하는 창을 띄운다
+                requestPermissions(permission_list, 0);
+            }
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 0) {
+            for (int i = 0; i < grantResults.length; i++) {
+                //허용됬다면
+                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                } else {
+                    Toast.makeText(getApplicationContext(), "앱권한설정하세요", Toast.LENGTH_LONG).show();
+                    finish();
+                }
+            }
+        }
     }
 }
