@@ -3,13 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:orientation="vertical">
 
     <LinearLayout
-        android:descendantFocusability="blocksDescendants"
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:descendantFocusability="blocksDescendants"
+        android:orientation="vertical">
 
 
         <LinearLayout
@@ -24,6 +25,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="메뉴명"
+                android:textColor="@color/black"
                 android:textSize="15sp" />
 
             <ImageView
@@ -51,7 +53,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
-                android:text="Ingredient" />
+                android:text="Ingredient"
+                android:textColor="@color/black" />
 
 
         </LinearLayout>
@@ -64,10 +67,10 @@
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:nestedScrollingEnabled="false"
             android:id="@+id/rc_recipe"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
             android:overScrollMode="never" />
     </LinearLayout>
 

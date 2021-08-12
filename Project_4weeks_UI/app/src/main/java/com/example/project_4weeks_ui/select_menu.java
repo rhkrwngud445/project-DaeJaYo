@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,11 +40,13 @@ public class select_menu extends AppCompatActivity {
     private ArrayList<Menu> arrayList;
     private FirebaseDatabase database;
     private DatabaseReference databaseReference;
+    private Button tagBt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_menu);
+        tagBt = findViewById(R.id.bt_tag);
 
         tv_category = findViewById(R.id.tv_category);
         tv_category.setText(selected_category_KR);
@@ -95,5 +98,14 @@ public class select_menu extends AppCompatActivity {
             return true;
         }
         return true;
+    }
+
+    private void initTagBt(){
+        tagBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
     }
 }
