@@ -27,6 +27,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_path"/>
         </provider>
+        <activity android:name=".RecipeActivity"/>
         <activity android:name=".add_menu"></activity>
         <activity android:name=".select_menu" />
         <activity android:name=".MainActivity">

@@ -11,7 +11,6 @@
     <ImageView
         android:id="@+id/iv_recipe_rv"
         android:layout_gravity="center_horizontal"
-        android:src="@drawable/creampasta"
         android:layout_width="120dp"
         android:layout_height="120dp"/>
     <TextView

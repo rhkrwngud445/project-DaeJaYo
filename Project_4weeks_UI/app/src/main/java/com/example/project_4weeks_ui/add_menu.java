@@ -44,7 +44,6 @@ import java.net.URI;
 import java.util.ArrayList;
 
 public class add_menu extends AppCompatActivity {
-    public String selected_category_ENG = ((MainActivity)MainActivity.context_MainActivity).selected_category_ENG; // 카테고리
     private FirebaseStorage storage; // Firebase Storage
     private DatabaseReference databaseRef;
 
@@ -480,7 +479,7 @@ public class add_menu extends AppCompatActivity {
                                                             New_menu new_menu = new New_menu(menu_name, mainImage_url,Integer.toString(select_menu.curCategory_size), info, ingredient_array, recipe_array);
                                                             // DB update
                                                             databaseRef = FirebaseDatabase.getInstance().getReference(); // database 참조 객체
-                                                            databaseRef.child(selected_category_ENG).child(Integer.toString(select_menu.curCategory_size - 1)).setValue(new_menu); // child 생성
+                                                            databaseRef.child(MainActivity.selected_category_ENG).child(Integer.toString(select_menu.curCategory_size - 1)).setValue(new_menu); // child 생성
                                                         }
                                                     }).addOnFailureListener(new OnFailureListener() {
                                                         @Override
