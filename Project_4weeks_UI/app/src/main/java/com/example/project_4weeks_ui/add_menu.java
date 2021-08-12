@@ -45,8 +45,6 @@ import java.util.ArrayList;
 
 public class add_menu extends AppCompatActivity {
     public String selected_category_ENG = ((MainActivity)MainActivity.context_MainActivity).selected_category_ENG; // 카테고리
-    //public String curCategory_size = ((select_menu)select_menu.context_select_menu).curCategory_size ; //카테고리 원소 개수
-    public String curCategory_size = "80";
     private FirebaseStorage storage; // Firebase Storage
     private DatabaseReference databaseRef;
 
@@ -435,56 +433,52 @@ public class add_menu extends AppCompatActivity {
                                     if(task.isSuccessful()){
                                         Uri downloadUri = task.getResult();
                                         mainImage_url = downloadUri.toString();
+
+                                        // 레시피 사진 Firebase Storage에 저장
+                                        for (int i = 0; i < recipe_array.size(); i++) { // 추가된 레시피 단계 개수만큼 반복
+                                            int idx = i;
+                                            // Firebase Storage에 레시피 사진 업로드
+                                            Uri recipe_file = Uri.fromFile(new File(recipe_array.get(idx).getImg()));
+                                            StorageReference recipe_riversRef = storageRef.child("images/" + recipe_file.getLastPathSegment());
+                                            UploadTask recipe_uploadTask = recipe_riversRef.putFile(recipe_file);
+
+                                            // 레시피의 String img를 절대경로 --> 사진이 저장된 url로 바꿔줌
+                                            recipe_uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                                @Override
+                                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                    storageRef.child("images/").child(recipe_file.getLastPathSegment()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                        @Override
+                                                        public void onSuccess(Uri uri) {
+                                                            recipe_array.get(idx).setImg(uri.toString());
+
+                                                            // 추가될 새로운 menu 객체 생성
+                                                            Information info = new Information(info1,info2,info3);
+                                                            New_menu new_menu = new New_menu(menu_name, mainImage_url,Integer.toString(select_menu.curCategory_size), info, ingredient_array, recipe_array);
+                                                            // DB update
+                                                            databaseRef = FirebaseDatabase.getInstance().getReference(); // database 참조 객체
+                                                            databaseRef.child(selected_category_ENG).child(Integer.toString(select_menu.curCategory_size - 1)).setValue(new_menu); // child 생성
+                                                        }
+                                                    }).addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Toast.makeText(getApplicationContext(), "레시피 path -> url 변경 실패했습니다.", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    });
+                                                }
+
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Toast.makeText(getApplicationContext(),"레시피 사진 등록 실패했습니다", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                        } // 레시피 사진 저장 end
+                                        finish();
                                     }
                                 }
                             });
                         }
                     }); // 메인 사진 저장 end
-
-
-                    // 레시피 사진 Firebase Storage에 저장
-                    for (int i = 0; i < recipe_array.size(); i++) { // 추가된 레시피 단계 개수만큼 반복
-                        int idx = i;
-                        // Firebase Storage에 레시피 사진 업로드
-                        Uri recipe_file = Uri.fromFile(new File(recipe_array.get(idx).getImg()));
-                        StorageReference recipe_riversRef = storageRef.child("images/" + recipe_file.getLastPathSegment());
-                        UploadTask recipe_uploadTask = recipe_riversRef.putFile(recipe_file);
-
-                        // 레시피의 String img를 절대경로 --> 사진이 저장된 url로 바꿔줌
-                        recipe_uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                storageRef.child("images/").child(recipe_file.getLastPathSegment()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        recipe_array.get(idx).setImg(uri.toString());
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(getApplicationContext(), "레시피 path -> url 변경 실패했습니다.", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            }
-
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(getApplicationContext(),"레시피 사진 등록 실패했습니다", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    } // 레시피 사진 저장 end
-
-                    // 추가될 새로운 menu 객체 생성
-
-                    Information info = new Information(info1,info2,info3);
-                    New_menu new_menu = new New_menu(menu_name, mainImage_url,curCategory_size, info, ingredient_array, recipe_array);
-
-
-                    // DB update
-                    databaseRef = FirebaseDatabase.getInstance().getReference(); // database 참조 객체
-                    databaseRef.child(selected_category_ENG).child(Integer.toString(Integer.parseInt(curCategory_size) - 1)).setValue(new_menu); // child 생성
-//                    databaseRef.child(selected_category_ENG).child(Integer.toString(Integer.parseInt(curCategory_size) - 1)).setValue(new_menu);
                 }
             }
 

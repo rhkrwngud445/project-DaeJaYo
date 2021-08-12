@@ -31,7 +31,7 @@ public class select_menu extends AppCompatActivity {
     public String selected_category_KR = ((MainActivity)MainActivity.context_MainActivity).selected_category_KR;
     public String selected_category_ENG = ((MainActivity)MainActivity.context_MainActivity).selected_category_ENG;
     // MainActivity로 부터 선택된 카테고리 이름 받아오기
-    public String curCategory_size="0"; // 현재 current 카테고리의 원소 개수
+    public static int curCategory_size; // 현재 current 카테고리의 원소 개수
     public static Context context_select_menu; // curCategory_size를 넘겨주기 위한 context 선언
     public TextView tv_category; // 카테고리 이름을 출력할 textView
     public Button bt_addmenu; // 메뉴 추가 버튼
@@ -72,8 +72,9 @@ public class select_menu extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // 파이어베이스 db에서 데이터를 받아오는 함수
                 arrayList.clear(); // arrayList 초기화
+                curCategory_size = 0;
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()){ // for문으로 List 추출
-                    curCategory_size = Integer.toString(Integer.parseInt(curCategory_size) + 1);
+                    curCategory_size++;
                     Menu menu = new Menu();
                     menu.set_name(snapshot.child("name").getValue().toString());
                     menu.set_img_URL(snapshot.child("img").getValue().toString());

@@ -153,8 +153,7 @@ public class MainActivity extends AppCompatActivity {
         }// 날씨 end
 
     }
-    
-    
+
     public void startLocationService(){
         LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         try{
