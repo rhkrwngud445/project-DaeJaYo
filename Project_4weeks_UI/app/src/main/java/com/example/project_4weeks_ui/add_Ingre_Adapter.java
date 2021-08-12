@@ -30,10 +30,10 @@ public class add_Ingre_Adapter extends RecyclerView.Adapter<add_Ingre_Adapter.Ad
 
     @Override
     public void onBindViewHolder(@NonNull AddViewHolder holder, int position) {
-        holder.tv_addingIngreNum.setText(arrayList.get(position).get_ingre_num());
-        holder.tv_addingIngreName.setText(arrayList.get(position).get_ingre_name());
-        holder.tv_addingIngreCount.setText(arrayList.get(position).get_ingre_count());
-        holder.tv_addingIngreUnit.setText(arrayList.get(position).get_ingre_unit());
+        holder.tv_addingIngreNum.setText(arrayList.get(position).getIngre_num());
+        holder.tv_addingIngreName.setText(arrayList.get(position).getIngre_name());
+        holder.tv_addingIngreCount.setText(arrayList.get(position).getIngre_count());
+        holder.tv_addingIngreUnit.setText(arrayList.get(position).getIngre_unit());
     }
 
     @Override

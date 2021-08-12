@@ -236,9 +236,9 @@ public class add_menu extends AppCompatActivity {
                                     ingredient_array.remove(num - 1);
                                     ingre_adapter.notifyItemRemoved(num - 1);
                                     for (int i = 0; i < ingredient_array.size(); i++) {
-                                        int cur_num = Integer.parseInt(ingredient_array.get(i).get_ingre_num());
+                                        int cur_num = Integer.parseInt(ingredient_array.get(i).getIngre_num());
                                         if (cur_num > num) {
-                                            ingredient_array.get(i).set_ingre_num(Integer.toString(cur_num - 1));
+                                            ingredient_array.get(i).setIngre_num(Integer.toString(cur_num - 1));
                                         }
                                     }
                                     ingre_adapter.notifyDataSetChanged();
@@ -362,6 +362,33 @@ public class add_menu extends AppCompatActivity {
             }
         });
 
+        /*
+        메뉴 등록 버튼 로직
+        1. 버튼 click 이벤트 발생
+        --> 대표 이미지 || 메뉴 이름 || 레시피정보 || 재료정보
+            이 중에 하나라도 빠지는게 있다면, Toast 로 알려줌
+
+        2. 위 항목이 모두 입력되어 있으면
+            1) 디바이스 절대경로를 이용하여 대표이미지 파이어베이스스토리지에 업로드
+            2) 대표이미지 스토리지에 업로드 성공할 시
+               --> 대표이미지 다운로드 url 을 생성
+               --> 레시피 개수만큼 for 돌면서 디바이스 절대경로를 이용하여 레시피 사진 스토리지에 업로드
+                  --> for 문을 돌면서 레시피 사진이 스토리지에 업로드 될 때 마다 레시피 객체가 가지고 있던 절대경로를 다운로드 url로 변환해줌
+                  --> 사용자가 입력한 정보를 바탕으로 new_menu 객체를 생성해서 DB에 업로드함
+
+                      <!!!> for 문이 종료된 후에 new_menu 객체를 만들어서 업로드 안 하고 이렇게 레시피 개수만큼 객체를 만들어서 DB에 업로드한 이유는,
+                            onSuccessListener 가 for 문이 끝날 때까지 실행이 안 되는 경우가 있어서 DB에 최종적인 내용이 안 올라감.
+                            ex) DB에
+                                레시피1 = img : "다운로드 url"
+                                레시피2 = img :  절대경로
+                             이런식으로 저장됨. 그래서 for 문을 돌면서 매번 new_menu 객체를 만들어서 덮어쓰기? 하는 느낌으로
+
+        3. 2번 마지막줄에 나와있는 것처럼, 사용자가 메뉴추가를 하고나서 다시 select_menu 액티비티로 돌아왔을 때,
+           레시피 사진 등록 onSuccessListener 가 아직 실행되지 않아 메뉴 업데이트가 안되어있음.
+           앱 재실행하면 업데이트 되는 정도의 시간차이. --> 사실 이것도 레시피 길이가 길어지면 어떻게 될지 모르겠음
+
+        */
+
         // 메뉴 등록 버튼
         Button btn_register = (Button)findViewById(R.id.btn_register);
         btn_register.setOnClickListener(new View.OnClickListener() {
@@ -382,7 +409,6 @@ public class add_menu extends AppCompatActivity {
                 String info3 = etv_addmenu_inputInfo3.getText().toString();
 
                 // 재료 정보는 IngredientArray에 있음
-
                 // 레시피 정보는 IngredientArray에 있음
 
 
@@ -394,7 +420,6 @@ public class add_menu extends AppCompatActivity {
                 if (mainImage_path == null) {
                     Toast.makeText(getApplicationContext(), "대표 이미지를 등록하지 않았어요 !", Toast.LENGTH_SHORT).show();
                 }
-                /*
                 else if(menu_name == null){
                     Toast.makeText(getApplicationContext(), "메뉴 이름을 입력하지 않았어요 !", Toast.LENGTH_SHORT).show();
                 }
@@ -404,7 +429,6 @@ public class add_menu extends AppCompatActivity {
                 else if(ingredient_array.size() == 0){
                     Toast.makeText(getApplicationContext(), "재료 정보를 등록하지 않았어요 !", Toast.LENGTH_SHORT).show();
                 }
-                 */
                 else {
                     Uri main_file = Uri.fromFile(new File(mainImage_path));
                     StorageReference riversRef = storageRef.child("images/" + main_file.getLastPathSegment());
