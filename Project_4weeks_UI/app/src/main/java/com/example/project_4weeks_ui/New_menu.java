@@ -7,11 +7,11 @@ public class New_menu {
     String name;
     String img;
     String id;
-    ArrayList<String> info;
+    Information info;
     ArrayList<Ingredient> ingre;
     ArrayList<add_recipe> recipe;
 
-    public New_menu(String name, String img, String id, ArrayList<String> info, ArrayList<Ingredient> ingre, ArrayList<add_recipe> recipe) {
+    public New_menu(String name, String img, String id, Information info, ArrayList<Ingredient> ingre, ArrayList<add_recipe> recipe) {
         this.name = name;
         this.img = img;
         this.id = id;
@@ -32,6 +32,14 @@ public class New_menu {
         return name;
     }
 
+    public Information getInfo() {
+        return info;
+    }
+
+    public void setInfo(Information info) {
+        this.info = info;
+    }
+
     public void setName(String id) {
         this.name = name;
     }
@@ -41,14 +49,6 @@ public class New_menu {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public ArrayList<String> getInfo() {
-        return info;
-    }
-
-    public void setInfo(ArrayList<String> info) {
-        this.info = info;
     }
 
     public ArrayList<Ingredient> getIngre() {
@@ -66,6 +66,5 @@ public class New_menu {
     public void setRecipe(ArrayList<add_recipe> recipe) {
         this.recipe = recipe;
     }
-
 
 }

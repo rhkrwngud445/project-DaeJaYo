@@ -25,8 +25,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.annotations.NotNull;
@@ -42,8 +45,8 @@ import java.util.ArrayList;
 
 public class add_menu extends AppCompatActivity {
     public String selected_category_ENG = ((MainActivity)MainActivity.context_MainActivity).selected_category_ENG; // 카테고리
-    public int curCategory_size = 0; //카테고리 원소 개수
-
+    //public String curCategory_size = ((select_menu)select_menu.context_select_menu).curCategory_size ; //카테고리 원소 개수
+    public String curCategory_size = "80";
     private FirebaseStorage storage; // Firebase Storage
     private DatabaseReference databaseRef;
 
@@ -153,10 +156,6 @@ public class add_menu extends AppCompatActivity {
         setContentView(R.layout.activity_add_menu);
         iv_MenuImage = findViewById(R.id.iv_MenuImg);
         checkPermission(); // 갤러리 권한체크
-
-        //curCategory_size = ((select_menu)select_menu.context_select_menu).curCategory_size; // 메뉴개수 가져오기
-
-
 
         // 대표 이미지 추가 버튼
         Button btn_add_MenuImg = (Button) findViewById(R.id.btn_add_MenuImg);
@@ -375,13 +374,14 @@ public class add_menu extends AppCompatActivity {
                 EditText etv_addmenu_inputName = (EditText) findViewById(R.id.etv_addmenu_inputName);
                 menu_name = etv_addmenu_inputName.getText().toString();
 
+
                 // 메뉴정보 저장
                 EditText etv_addmenu_inputInfo1 = (EditText) findViewById(R.id.etv_addmenu_inputInfo1);
-                info.add(etv_addmenu_inputInfo1.getText().toString());
+                String info1 = etv_addmenu_inputInfo1.getText().toString();
                 EditText etv_addmenu_inputInfo2 = (EditText) findViewById(R.id.etv_addmenu_inputInfo2);
-                info.add(etv_addmenu_inputInfo2.getText().toString());
+                String info2 = etv_addmenu_inputInfo2.getText().toString();
                 EditText etv_addmenu_inputInfo3 = (EditText) findViewById(R.id.etv_addmenu_inputInfo3);
-                info.add(etv_addmenu_inputInfo3.getText().toString());
+                String info3 = etv_addmenu_inputInfo3.getText().toString();
 
                 // 재료 정보는 IngredientArray에 있음
 
@@ -410,73 +410,86 @@ public class add_menu extends AppCompatActivity {
                 else {
                     Uri main_file = Uri.fromFile(new File(mainImage_path));
                     StorageReference riversRef = storageRef.child("images/" + main_file.getLastPathSegment());
-                    UploadTask uploadTask = riversRef.putFile(main_file);
+                    UploadTask uploadTask = riversRef.putFile(main_file); // 사진 업로드
                     uploadTask.addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getApplicationContext(), "메인 사진 업로드에 실패했습니다", Toast.LENGTH_SHORT).show();
                         }
                     }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Toast.makeText(getApplicationContext(),"스토리지에 저장 성공",Toast.LENGTH_SHORT).show();
-                            storageRef.child("images/").child(main_file.getLastPathSegment()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            final StorageReference ref = storageRef.child("images/" + main_file.getLastPathSegment());
+                            UploadTask uploadTask = ref.putFile(main_file);
+                            Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                                 @Override
-                                public void onSuccess(Uri uri) {
-                                    Toast.makeText(getApplicationContext(),uri.toString(),Toast.LENGTH_SHORT).show();
-                                    mainImage_url = uri.toString(); // main 이미지 url
-
-                                    // 레시피 사진 Firebase Storage에 저장
-
-                                    for (int i = 0; i < recipe_array.size(); i++) { // 추가된 레시피 단계 개수만큼 반복
-                                        Toast.makeText(getApplicationContext(), "for loop",Toast.LENGTH_SHORT).show();
-                                        int idx = i;
-                                        // Firebase Storage에 레시피 사진 업로드
-                                        Uri recipe_file = Uri.fromFile(new File(recipe_array.get(i).getImg()));
-                                        UploadTask recipe_uploadTask = riversRef.putFile(recipe_file);
-                                        // 레시피의 String img를 절대경로 --> 사진이 저장된 url로 바꿔줌
-                                        recipe_uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                            @Override
-                                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                                storageRef.child("images/" + recipe_file.getLastPathSegment()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                                    @Override
-                                                    public void onSuccess(Uri uri) {
-                                                        Toast.makeText(getApplicationContext(),uri.toString(), Toast.LENGTH_SHORT).show();
-                                                        recipe_array.get(idx).setImg(uri.toString());
-                                                    }
-                                                }).addOnFailureListener(new OnFailureListener() {
-                                                    @Override
-                                                    public void onFailure(@NonNull Exception e) {
-                                                        Toast.makeText(getApplicationContext(),"레시피 path -> url 변경에 실패했습니다.", Toast.LENGTH_SHORT).show();
-                                                    }
-                                                });
-                                            }
-                                        }).addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Toast.makeText(getApplicationContext(),"레시피 사진 등록에 실패했습니다", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                    } // 레시피 사진 저장 end
-
-                                    // 추가될 새로운 menu 객체 생성
-                                    New_menu new_menu = new New_menu(menu_name, mainImage_url,Integer.toString(curCategory_size), info, ingredient_array, recipe_array);
-
-                                    // DB update
-                                    databaseRef = FirebaseDatabase.getInstance().getReference(); // database 참조 객체
-                                    databaseRef = databaseRef.child(selected_category_ENG).child(Integer.toString(curCategory_size - 1)); // child 생성
-                                    databaseRef.setValue(new_menu);
+                                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                                    if(!task.isSuccessful()){
+                                        throw task.getException();
+                                    }
+                                    return ref.getDownloadUrl();
                                 }
-                            }).addOnFailureListener(new OnFailureListener() {
+                            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                                 @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(getApplicationContext(),"실패",Toast.LENGTH_SHORT).show();
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    if(task.isSuccessful()){
+                                        Uri downloadUri = task.getResult();
+                                        mainImage_url = downloadUri.toString();
+                                    }
                                 }
                             });
                         }
                     }); // 메인 사진 저장 end
+
+
+                    // 레시피 사진 Firebase Storage에 저장
+                    for (int i = 0; i < recipe_array.size(); i++) { // 추가된 레시피 단계 개수만큼 반복
+                        int idx = i;
+                        // Firebase Storage에 레시피 사진 업로드
+                        Uri recipe_file = Uri.fromFile(new File(recipe_array.get(idx).getImg()));
+                        StorageReference recipe_riversRef = storageRef.child("images/" + recipe_file.getLastPathSegment());
+                        UploadTask recipe_uploadTask = recipe_riversRef.putFile(recipe_file);
+
+                        // 레시피의 String img를 절대경로 --> 사진이 저장된 url로 바꿔줌
+                        recipe_uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                storageRef.child("images/").child(recipe_file.getLastPathSegment()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        recipe_array.get(idx).setImg(uri.toString());
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(getApplicationContext(), "레시피 path -> url 변경 실패했습니다.", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(getApplicationContext(),"레시피 사진 등록 실패했습니다", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } // 레시피 사진 저장 end
+
+                    // 추가될 새로운 menu 객체 생성
+
+                    Information info = new Information(info1,info2,info3);
+                    New_menu new_menu = new New_menu(menu_name, mainImage_url,curCategory_size, info, ingredient_array, recipe_array);
+
+
+                    // DB update
+                    databaseRef = FirebaseDatabase.getInstance().getReference(); // database 참조 객체
+                    databaseRef.child(selected_category_ENG).child(Integer.toString(Integer.parseInt(curCategory_size) - 1)).setValue(new_menu); // child 생성
+//                    databaseRef.child(selected_category_ENG).child(Integer.toString(Integer.parseInt(curCategory_size) - 1)).setValue(new_menu);
                 }
             }
+
         });
+
 
     }
 
