@@ -8,11 +8,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,13 +19,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.database.annotations.NotNull;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
-public class select_menu extends AppCompatActivity {
+public class SelectMenuActivity extends AppCompatActivity {
     public static String selected_menu; // 선택된 메뉴이름
     public static String selected_menu_num; // 선택된 메뉴 번호
     // MainActivity로 부터 선택된 카테고리 이름 받아오기
@@ -55,7 +50,7 @@ public class select_menu extends AppCompatActivity {
         bt_addmenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), add_menu.class);
+                Intent intent = new Intent(getApplicationContext(), AddMenuActivity.class);
                 startActivity(intent);
             }
         });

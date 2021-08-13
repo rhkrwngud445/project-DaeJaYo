@@ -1,5 +1,6 @@
 package com.example.project_4weeks_ui;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -11,8 +12,11 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 
@@ -21,12 +25,18 @@ import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -36,9 +46,15 @@ public class MainActivity extends AppCompatActivity {
     String lon ; // 경도
     String lat ; // 위도
     String address ; // 주소
+    public static ArrayList<Menu> search_menu = new ArrayList<>(); // 키워드로 검색된 메뉴들
+    public static String search_word; // 검색어
     public static String selected_category_KR; // 선택된카테고리 한글
     public static String selected_category_ENG; // 선택된카테고리 영어
     // 한글과 영어 구분한 이유는 db에서 한글로 받아올 수 없어서 영어 이름도 넘겨줘야함
+
+    private FirebaseDatabase database;
+    private DatabaseReference databaseReference;
+
 
     TextView tv_temperature; // 온도출력 텍스트뷰
     TextView tv_location; // 주소출력 텍스트뷰
@@ -52,10 +68,46 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         startLocationService(); // 위도 경도 받아오기
         get_weatherAPI(); // 날씨 받아오기
-
-        context_MainActivity = this; // selected_category 넘겨주기 위한 context
         tv_location = findViewById(R.id.tv_location);
         tv_temperature = findViewById(R.id.tv_temperature);
+
+        EditText etv_searching_word = (EditText)findViewById(R.id.etv_enter_searchingWord);
+        Button btn_search = (Button)findViewById(R.id.btn_search); // 검색버튼
+        btn_search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                search_word = etv_searching_word.getText().toString(); // 검색한 단어
+                database = FirebaseDatabase.getInstance();
+                databaseReference = database.getReference();
+                databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        search_menu.clear();
+                        for(DataSnapshot categorySnapshot : snapshot.getChildren()){
+                            for(DataSnapshot menuSnapshot : categorySnapshot.getChildren()){
+                                String name = menuSnapshot.child("name").getValue().toString();
+                                if(name.contains(search_word)){
+                                    Menu menu = new Menu();
+                                    menu.set_name(menuSnapshot.child("name").getValue().toString());
+                                    menu.set_img_URL(menuSnapshot.child("img").getValue().toString());
+                                    menu.set_info1(menuSnapshot.child("info").child("info1").getValue().toString());
+                                    menu.set_info2(menuSnapshot.child("info").child("info2").getValue().toString());
+                                    menu.set_info3(menuSnapshot.child("info").child("info3").getValue().toString());
+                                    search_menu.add(menu);
+                                }
+                            }
+                        }
+                        Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
+                        startActivity(intent);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(getApplicationContext(), "검색 실패!!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
 
         ImageButton button_noodle = findViewById(R.id.ib_noodle);
         ImageButton button_bowl = findViewById(R.id.ib_bowl);
@@ -75,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 selected_category_KR = (String) tv_noodle.getText();
                 selected_category_ENG = "noodle";
-                Intent intent = new Intent(getApplicationContext(), select_menu.class);
+                Intent intent = new Intent(getApplicationContext(), SelectMenuActivity.class);
                 startActivity(intent);
             }
         });
@@ -84,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 selected_category_KR = (String) tv_bowl.getText();
                 selected_category_ENG = "bowl";
-                Intent intent = new Intent(getApplicationContext(), select_menu.class);
+                Intent intent = new Intent(getApplicationContext(), SelectMenuActivity.class);
                 startActivity(intent);
             }
         });
@@ -93,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 selected_category_KR = (String) tv_maindish.getText();
                 selected_category_ENG = "maindish";
-                Intent intent = new Intent(getApplicationContext(), select_menu.class);
+                Intent intent = new Intent(getApplicationContext(), SelectMenuActivity.class);
                 startActivity(intent);
             }
         });
@@ -102,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 selected_category_KR = (String) tv_rice.getText();
                 selected_category_ENG = "rice";
-                Intent intent = new Intent(getApplicationContext(), select_menu.class);
+                Intent intent = new Intent(getApplicationContext(), SelectMenuActivity.class);
                 startActivity(intent);
             }
         });
@@ -111,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 selected_category_KR = (String) tv_bread.getText();
                 selected_category_ENG = "bread";
-                Intent intent = new Intent(getApplicationContext(), select_menu.class);
+                Intent intent = new Intent(getApplicationContext(), SelectMenuActivity.class);
                 startActivity(intent);
             }
         });
@@ -120,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 selected_category_KR = (String) tv_alcohol.getText();
                 selected_category_ENG = "alcohol";
-                Intent intent = new Intent(getApplicationContext(), select_menu.class);
+                Intent intent = new Intent(getApplicationContext(), SelectMenuActivity.class);
                 startActivity(intent);
             }
         });

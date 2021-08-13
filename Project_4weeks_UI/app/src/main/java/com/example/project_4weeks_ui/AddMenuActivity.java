@@ -32,18 +32,15 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.annotations.NotNull;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.net.URI;
 import java.util.ArrayList;
 
-public class add_menu extends AppCompatActivity {
+public class AddMenuActivity extends AppCompatActivity {
     private FirebaseStorage storage; // Firebase Storage
     private DatabaseReference databaseRef;
 
@@ -181,8 +178,8 @@ public class add_menu extends AppCompatActivity {
         btn_addIngre.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder addIngre_dialog = new AlertDialog.Builder(add_menu.this);
-                View view = LayoutInflater.from(add_menu.this).inflate(R.layout.add_ingre_dialog, null, false);
+                AlertDialog.Builder addIngre_dialog = new AlertDialog.Builder(AddMenuActivity.this);
+                View view = LayoutInflater.from(AddMenuActivity.this).inflate(R.layout.add_ingre_dialog, null, false);
                 addIngre_dialog.setView(view); // 출력할 dialog에 custon dialog 적용
 
                 Button btn_submit = (Button) view.findViewById(R.id.btn_addIngre_submit); // 추가 버튼
@@ -215,8 +212,8 @@ public class add_menu extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (ingredient_array.size() > 0) {
-                    AlertDialog.Builder deleteIngre_dialog = new AlertDialog.Builder(add_menu.this);
-                    View view = LayoutInflater.from(add_menu.this).inflate(R.layout.delete_ingre_dialog, null, false);
+                    AlertDialog.Builder deleteIngre_dialog = new AlertDialog.Builder(AddMenuActivity.this);
+                    View view = LayoutInflater.from(AddMenuActivity.this).inflate(R.layout.delete_ingre_dialog, null, false);
                     deleteIngre_dialog.setView(view); // 출력할 dialog에 custon dialog 적용
 
                     Button btn_submit = (Button) view.findViewById(R.id.btn_delete_submit); // 삭제 버튼
@@ -272,8 +269,8 @@ public class add_menu extends AppCompatActivity {
         btn_addRecipe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder addRecipe_dialog = new AlertDialog.Builder(add_menu.this);
-                View view = LayoutInflater.from(add_menu.this).inflate(R.layout.add_recipe_dialog, null, false);
+                AlertDialog.Builder addRecipe_dialog = new AlertDialog.Builder(AddMenuActivity.this);
+                View view = LayoutInflater.from(AddMenuActivity.this).inflate(R.layout.add_recipe_dialog, null, false);
                 addRecipe_dialog.setView(view);
 
                 Button btn_submit = (Button) view.findViewById(R.id.btn_addRecipe_submit); // 추가 버튼
@@ -321,8 +318,8 @@ public class add_menu extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (recipe_array.size() > 0) {
-                    AlertDialog.Builder deleteIngre_dialog = new AlertDialog.Builder(add_menu.this);
-                    View view = LayoutInflater.from(add_menu.this).inflate(R.layout.delete_recipe_dialog, null, false);
+                    AlertDialog.Builder deleteIngre_dialog = new AlertDialog.Builder(AddMenuActivity.this);
+                    View view = LayoutInflater.from(AddMenuActivity.this).inflate(R.layout.delete_recipe_dialog, null, false);
                     deleteIngre_dialog.setView(view); // 출력할 dialog에 custon dialog 적용
 
                     Button btn_submit = (Button) view.findViewById(R.id.btn_delete_submit); // 삭제 버튼
@@ -476,10 +473,10 @@ public class add_menu extends AppCompatActivity {
 
                                                             // 추가될 새로운 menu 객체 생성
                                                             Information info = new Information(info1,info2,info3);
-                                                            New_menu new_menu = new New_menu(menu_name, mainImage_url,Integer.toString(select_menu.curCategory_size), info, ingredient_array, recipe_array);
+                                                            New_menu new_menu = new New_menu(menu_name, mainImage_url,Integer.toString(SelectMenuActivity.curCategory_size), info, ingredient_array, recipe_array);
                                                             // DB update
                                                             databaseRef = FirebaseDatabase.getInstance().getReference(); // database 참조 객체
-                                                            databaseRef.child(MainActivity.selected_category_ENG).child(Integer.toString(select_menu.curCategory_size - 1)).setValue(new_menu); // child 생성
+                                                            databaseRef.child(MainActivity.selected_category_ENG).child(Integer.toString(SelectMenuActivity.curCategory_size - 1)).setValue(new_menu); // child 생성
                                                         }
                                                     }).addOnFailureListener(new OnFailureListener() {
                                                         @Override
