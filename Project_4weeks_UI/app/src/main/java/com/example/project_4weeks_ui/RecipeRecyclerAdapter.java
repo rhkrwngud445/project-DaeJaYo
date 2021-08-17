@@ -61,6 +61,5 @@ public class RecipeRecyclerAdapter extends RecyclerView.Adapter<RecipeRecyclerAd
         return mData.size();
     }
 
-
 }
 
