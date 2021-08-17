@@ -43,9 +43,6 @@ import java.util.Locale;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
-    String lon ; // 경도
-    String lat ; // 위도
-    String address ; // 주소
     public static ArrayList<Menu> search_menu = new ArrayList<>(); // 키워드로 검색된 메뉴들
     public static String search_word; // 검색어
     public static String selected_category_KR; // 선택된카테고리 한글
@@ -55,24 +52,14 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference databaseReference;
 
-
-    TextView tv_temperature; // 온도출력 텍스트뷰
-    TextView tv_location; // 주소출력 텍스트뷰
-
-    public static Context context_MainActivity; // selected_category 넘겨주기 위한 context 선언
-    static RequestQueue requestQueue;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        startLocationService(); // 위도 경도 받아오기
-        get_weatherAPI(); // 날씨 받아오기
-        tv_location = findViewById(R.id.tv_location);
-        tv_temperature = findViewById(R.id.tv_temperature);
 
-        EditText etv_searching_word = (EditText)findViewById(R.id.etv_enter_searchingWord);
-        Button btn_search = (Button)findViewById(R.id.btn_search); // 검색버튼
+        // 검색기능
+        EditText etv_searching_word = (EditText) findViewById(R.id.etv_enter_searchingWord);
+        Button btn_search = (Button) findViewById(R.id.btn_search); // 검색버튼
         btn_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -83,10 +70,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
                         search_menu.clear();
-                        for(DataSnapshot categorySnapshot : snapshot.getChildren()){
-                            for(DataSnapshot menuSnapshot : categorySnapshot.getChildren()){
+                        for (DataSnapshot categorySnapshot : snapshot.getChildren()) {
+                            for (DataSnapshot menuSnapshot : categorySnapshot.getChildren()) {
                                 String name = menuSnapshot.child("name").getValue().toString();
-                                if(name.contains(search_word)){
+                                if (name.contains(search_word)) {
                                     Menu menu = new Menu();
                                     menu.set_name(menuSnapshot.child("name").getValue().toString());
                                     menu.set_img_URL(menuSnapshot.child("img").getValue().toString());
@@ -109,6 +96,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
+
+
+        // 카테고리 선택 버튼
         ImageButton button_noodle = findViewById(R.id.ib_noodle);
         ImageButton button_bowl = findViewById(R.id.ib_bowl);
         ImageButton button_maindish = findViewById(R.id.ib_maindish);
@@ -176,111 +168,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        // 자동 위험권한 받아오기
-        AndPermission.with(this)
-                .runtime()
-                .permission(
-                        Permission.ACCESS_COARSE_LOCATION,
-                        Permission.ACCESS_FINE_LOCATION)
-                .onGranted(new Action<List<String>>() {
-                    @Override
-                    public void onAction(List<String> permissions) {
-                    }
-                })
-                .onDenied(new Action<List<String>>() {
-                    @Override
-                    public void onAction(List<String> permissions) {
-                    }
-                })
-                .start();
-        /* end of 자동 위험권한 받아오기 */
-    }
-    
-    public void get_weatherAPI(){
-        //날씨 받아오기
-        if(requestQueue == null){
-            requestQueue = Volley.newRequestQueue(getApplicationContext());
-            makeRequest();
-        }// 날씨 end
-
-    }
-
-    public void startLocationService(){
-        LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        try{
-            Location location = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if(location != null){
-                lat = Double.toString(location.getLatitude());
-                lon = Double.toString(location.getLongitude());
-            }
-            GPSListener gpsListener = new GPSListener();
-            long minTime = 10000;
-            float minDistance = 0;
-            manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, gpsListener);
-            Geocoder gCoder = new Geocoder(getApplicationContext(), Locale.KOREAN);
-            StringBuilder sb = new StringBuilder();
-            try{
-                List<Address> addr = gCoder.getFromLocation(Double.parseDouble(lat),Double.parseDouble(lon),1);;
-                Address a = addr.get(0);
-                for(int i = 0 ; i <= a.getMaxAddressLineIndex(); i++){
-                    sb.append(a.getAddressLine(i));
-                }
-                address = sb.toString();
-                String[] arr = address.split( " ");
-                address = arr[1] + " " + arr[2] + " " + arr[3];
-                // arr[1] 시, arr[2] 구, arr[3] 동
-            }
-            catch(IOException e){
-                e.printStackTrace();
-            }
-
-        }
-        catch(SecurityException e){
-            e.printStackTrace();
-        }
-    }
-
-    public void makeRequest(){
-        String url = "https://api.openweathermap.org/data/2.5/weather?lat="+lat + "&lon=" + lon + "&appid=70d0dd949829ada26da501a0cfbe0fad";
-        StringRequest request = new StringRequest(Request.Method.GET, url,
-                new com.android.volley.Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        processResponse(response);
-                    }
-                    public void processResponse(String response){
-                        Gson gson = new Gson();
-                        WeatherData weather = gson.fromJson(response, WeatherData.class);
-                        String temp = weather.main.temp;
-                        Double t = Math.floor(Double.parseDouble(temp)) / 10;
-                        tv_temperature.setText(Double.toString(t) + "℃");
-                        tv_location.setText(address);
-                    }
-                },
-                new com.android.volley.Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                    }
-                }
-        ){
-            protected Map<String, String> getParams() throws AuthFailureError{
-                Map<String, String> params = new HashMap<String, String>();
-                return params;
-            }
-        };
-        request.setShouldCache(false);
-        requestQueue.add(request);
-
-    }
-    class GPSListener implements LocationListener {
-        public void onLocationChanged(Location location){
-            Double latitude = location.getLatitude();
-            Double longitude = location.getLongitude();
-        }
-        public void onProviderDisabled(String provider){}
-        public void onProviderEnabled(String provider){}
-        public void onStatus(String provider, int status, Bundle extras){}
     }
 
 }
