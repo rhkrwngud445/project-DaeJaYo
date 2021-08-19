@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 검색기능
         EditText etv_searching_word = (EditText) findViewById(R.id.etv_enter_searchingWord);
-        Button btn_search = (Button) findViewById(R.id.btn_search); // 검색버튼
+        ImageButton btn_search = (ImageButton) findViewById(R.id.btn_search); // 검색버튼
         btn_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -95,10 +95,6 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
-
-
-
-
 
         // 카테고리 선택 버튼
         ImageButton button_noodle = findViewById(R.id.ib_noodle);

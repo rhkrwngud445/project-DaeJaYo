@@ -10,10 +10,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -29,7 +30,7 @@ public class SelectMenuActivity extends AppCompatActivity {
     public static int curCategory_size; // 현재 current 카테고리의 원소 개수
     public static Context context_select_menu; // curCategory_size를 넘겨주기 위한 context 선언
     public TextView tv_category; // 카테고리 이름을 출력할 textView
-    public Button bt_addmenu; // 메뉴 추가 버튼
+    public FloatingActionButton btn_addmenu; // 메뉴 추가 버튼
     private RecyclerView recyclerView;
     private Menu_Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
@@ -45,16 +46,25 @@ public class SelectMenuActivity extends AppCompatActivity {
         tv_category = findViewById(R.id.tv_category);
         tv_category.setText(MainActivity.selected_category_KR);
 
+        // 뒤로가기 버튼
+        ImageButton btn_back = (ImageButton)findViewById(R.id.btn_back);
+        btn_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+
         // 메뉴 추가 버튼
-        bt_addmenu = findViewById(R.id.bt_addmenu);
-        bt_addmenu.setOnClickListener(new View.OnClickListener() {
+        btn_addmenu = findViewById(R.id.btn_addMenu);
+        btn_addmenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), AddMenuActivity.class);
                 startActivity(intent);
             }
         });
-
 
         recyclerView = findViewById(R.id.rec_menu);
         recyclerView.setHasFixedSize(true); // recyclerView 성능강화

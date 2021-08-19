@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -30,6 +31,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -151,17 +153,29 @@ public class AddMenuActivity extends AppCompatActivity {
         iv_MenuImage = findViewById(R.id.iv_MenuImg);
         checkPermission(); // 갤러리 권한체크
 
+
+        // 뒤로가기 버튼
+        ImageButton btn_back = (ImageButton)findViewById(R.id.btn_back2);
+        btn_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+
         // 대표 이미지 추가 버튼
-        Button btn_add_MenuImg = (Button) findViewById(R.id.btn_add_MenuImg);
+        FloatingActionButton btn_add_MenuImg = (FloatingActionButton) findViewById(R.id.btn_add_MenuImg);
         btn_add_MenuImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                Intent intent = new Intent(Intent.ACTION_PICK);
                 intent.setType("image/*");
                 startActivityForResult(intent, GALLERY_CODE_MainImage);
 
             }
         });
+
 
 
         // 재료 추가 리사이클러뷰 관련 코드
@@ -386,7 +400,7 @@ public class AddMenuActivity extends AppCompatActivity {
         */
 
         // 메뉴 등록 버튼
-        Button btn_register = (Button)findViewById(R.id.btn_register);
+        FloatingActionButton btn_register = (FloatingActionButton)findViewById(R.id.btn_register);
         btn_register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
