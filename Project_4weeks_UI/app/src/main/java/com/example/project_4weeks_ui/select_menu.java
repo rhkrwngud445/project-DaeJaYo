@@ -68,7 +68,7 @@ public class select_menu extends AppCompatActivity {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     // 파이어베이스 db에서 데이터를 받아오는 함수
                     arrayList.clear(); // arrayList 초기화
-                    for(DataSnapshot snapshot : dataSnapshot.getChildren()){ // for문으로 List 추출
+                    for(DataSnapshot snapshot : dataSnapshot.getChildren()){ //// for문으로 List 추출
                         Menu menu = new Menu();
                         menu.set_name(snapshot.child("name").getValue().toString());
                         menu.set_img_URL(snapshot.child("img").getValue().toString());
@@ -89,6 +89,7 @@ public class select_menu extends AppCompatActivity {
                 }
             });
         }
+
         else{
             callWithTag();
         }
@@ -120,30 +121,133 @@ public class select_menu extends AppCompatActivity {
     }
 
     private void callWithTag(){
+        Log.d("menulist-booleanrecipe",TagActivity.recipeBoolean.toString());
+        Log.d("menulist-booleanrecipe",TagActivity.ingreBoolean.toString());
+        Log.d("menulist-booleanrecipe",TagActivity.ingreNum.toString());
+        Log.d("menulist-booleanrecipe",TagActivity.recipeNum.toString());
         Log.d("menulist",myapp.getCategory_ENG());
 
         ValueEventListener postListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.e("getFirebaseDatabase", "key: " + snapshot.getChildrenCount());
                 for(DataSnapshot snapshot1 : snapshot.getChildren()){ // for문으로 List 추출
                     Menu menu = new Menu();
+                    Log.d("menuCount",String.valueOf(snapshot1.child("ingre").getChildrenCount()));
                     if(TagActivity.time.equals("default")){
-                        menu.set_name(snapshot1.child("name").getValue().toString());
-                        menu.set_img_URL(snapshot1.child("img").getValue().toString());
-                        menu.set_info1(snapshot1.child("info").child("info1").getValue().toString());
-                        menu.set_info2(snapshot1.child("info").child("info2").getValue().toString());
-                        menu.set_info3(snapshot1.child("info").child("info3").getValue().toString());
-                        arrayList.add(menu);
+                        if(TagActivity.ingreBoolean==true){
+                            if (TagActivity.ingreNum.equals(String.valueOf(snapshot1.child("ingre").getChildrenCount()))){
+                                if (TagActivity.recipeBoolean==true){
+                                        if (TagActivity.recipeNum.equals(String.valueOf(snapshot1.child("recipe").getChildrenCount()))){
+                                            menu.set_name(snapshot1.child("name").getValue().toString());
+                                            menu.set_img_URL(snapshot1.child("img").getValue().toString());
+                                            menu.set_info1(snapshot1.child("info").child("info1").getValue().toString());
+                                            menu.set_info2(snapshot1.child("info").child("info2").getValue().toString());
+                                            menu.set_info3(snapshot1.child("info").child("info3").getValue().toString());
+                                            arrayList.add(menu);
+                                        }
+                                        else{
+
+                                        }
+                                    }
+                                else{
+
+                                        menu.set_name(snapshot1.child("name").getValue().toString());
+                                        menu.set_img_URL(snapshot1.child("img").getValue().toString());
+                                        menu.set_info1(snapshot1.child("info").child("info1").getValue().toString());
+                                        menu.set_info2(snapshot1.child("info").child("info2").getValue().toString());
+                                        menu.set_info3(snapshot1.child("info").child("info3").getValue().toString());
+                                        arrayList.add(menu);
+                                }
+
+                            }
+                            else{
+
+                            }
+
+                        }
+                        else{
+                            if (TagActivity.recipeBoolean==true){
+                                if (TagActivity.recipeNum.equals(String.valueOf(snapshot1.child("recipe").getChildrenCount()))){
+                                    menu.set_name(snapshot1.child("name").getValue().toString());
+                                    menu.set_img_URL(snapshot1.child("img").getValue().toString());
+                                    menu.set_info1(snapshot1.child("info").child("info1").getValue().toString());
+                                    menu.set_info2(snapshot1.child("info").child("info2").getValue().toString());
+                                    menu.set_info3(snapshot1.child("info").child("info3").getValue().toString());
+                                    arrayList.add(menu);
+                                }
+                                else{
+
+                                }
+                            }
+                            else{
+                                menu.set_name(snapshot1.child("name").getValue().toString());
+                                menu.set_img_URL(snapshot1.child("img").getValue().toString());
+                                menu.set_info1(snapshot1.child("info").child("info1").getValue().toString());
+                                menu.set_info2(snapshot1.child("info").child("info2").getValue().toString());
+                                menu.set_info3(snapshot1.child("info").child("info3").getValue().toString());
+                                arrayList.add(menu);
+                            }
+                        }
+
                     }
                     else{
                         if(TagActivity.time.equals(snapshot1.child("info").child("info2").getValue().toString())){
-                            menu.set_name(snapshot1.child("name").getValue().toString());
-                            menu.set_img_URL(snapshot1.child("img").getValue().toString());
-                            menu.set_info1(snapshot1.child("info").child("info1").getValue().toString());
-                            menu.set_info2(snapshot1.child("info").child("info2").getValue().toString());
-                            menu.set_info3(snapshot1.child("info").child("info3").getValue().toString());
-                            arrayList.add(menu);
+                            if(TagActivity.ingreBoolean==true){
+                                if (TagActivity.ingreNum.equals(String.valueOf(snapshot1.child("ingre").getChildrenCount()))){
+                                    Log.d("checkTagIngre","true");
+                                    if (TagActivity.recipeBoolean==true){
+                                        if (TagActivity.recipeNum.equals(String.valueOf(snapshot1.child("recipe").getChildrenCount()))){
+                                            Log.d("menuRecipeBoolean","true");
+                                            menu.set_name(snapshot1.child("name").getValue().toString());
+                                            menu.set_img_URL(snapshot1.child("img").getValue().toString());
+                                            menu.set_info1(snapshot1.child("info").child("info1").getValue().toString());
+                                            menu.set_info2(snapshot1.child("info").child("info2").getValue().toString());
+                                            menu.set_info3(snapshot1.child("info").child("info3").getValue().toString());
+                                            arrayList.add(menu);
+                                        }
+                                        else{
+
+                                        }
+                                    }
+                                    else{
+                                        Log.d("menuRecipeBoolean","false");
+                                        menu.set_name(snapshot1.child("name").getValue().toString());
+                                        menu.set_img_URL(snapshot1.child("img").getValue().toString());
+                                        menu.set_info1(snapshot1.child("info").child("info1").getValue().toString());
+                                        menu.set_info2(snapshot1.child("info").child("info2").getValue().toString());
+                                        menu.set_info3(snapshot1.child("info").child("info3").getValue().toString());
+                                        arrayList.add(menu);
+                                    }
+
+                                }
+                                else{
+
+                                }
+
+                            }
+                            else{
+                                if (TagActivity.recipeBoolean==true){
+                                    if (TagActivity.recipeNum.equals(String.valueOf(snapshot1.child("recipe").getChildren()))){
+                                        menu.set_name(snapshot1.child("name").getValue().toString());
+                                        menu.set_img_URL(snapshot1.child("img").getValue().toString());
+                                        menu.set_info1(snapshot1.child("info").child("info1").getValue().toString());
+                                        menu.set_info2(snapshot1.child("info").child("info2").getValue().toString());
+                                        menu.set_info3(snapshot1.child("info").child("info3").getValue().toString());
+                                        arrayList.add(menu);
+                                    }
+                                    else{
+
+                                    }
+                                }
+                                else{
+                                    menu.set_name(snapshot1.child("name").getValue().toString());
+                                    menu.set_img_URL(snapshot1.child("img").getValue().toString());
+                                    menu.set_info1(snapshot1.child("info").child("info1").getValue().toString());
+                                    menu.set_info2(snapshot1.child("info").child("info2").getValue().toString());
+                                    menu.set_info3(snapshot1.child("info").child("info3").getValue().toString());
+                                    arrayList.add(menu);
+                                }
+                            }
                         }
                     }
 

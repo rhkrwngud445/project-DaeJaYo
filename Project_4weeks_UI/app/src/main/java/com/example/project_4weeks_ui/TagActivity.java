@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RadioGroup;
 
 import androidx.annotation.IdRes;
@@ -14,9 +15,17 @@ public class TagActivity extends AppCompatActivity {
     MyApp myapp;
     RadioGroup radioGroupMount;
     RadioGroup radioGroupTime;
+    RadioGroup radioGroupRecipe;
+    RadioGroup radioGroupIngre;
+    EditText recipe_et;
+    EditText ingre_et;
     Button button;
     static String   mount= "";
     static String time = "";
+    static String recipeNum = "";
+    static String ingreNum = "";
+    static Boolean ingreBoolean = false;
+    static Boolean recipeBoolean = false;
     static String category;
 
     @Override
@@ -24,14 +33,24 @@ public class TagActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         myapp = ((MyApp)getApplicationContext());
         setContentView(R.layout.activity_tag);
+
         radioGroupMount = findViewById(R.id.rbg_tag_mount);
         radioGroupTime = findViewById(R.id.rbg_tag_time);
+        radioGroupIngre= findViewById(R.id.rbg_tag_ingre);
+        radioGroupRecipe = findViewById(R.id.rbg_tag_recipe);
+        recipe_et = findViewById(R.id.et_number_recipe);
+        ingre_et = findViewById(R.id.et_number_ingre);
+
         radioGroupMount.setOnCheckedChangeListener(radioGroupButtonChangeListener);
         radioGroupTime.setOnCheckedChangeListener(radioGroupButtonChangeListener1);
+        radioGroupIngre.setOnCheckedChangeListener(radioGroupButtonChangeListener2);
+        radioGroupRecipe.setOnCheckedChangeListener(radioGroupButtonChangeListener3);
         button = findViewById(R.id.bt_setTag);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                recipeNum = recipe_et.getText().toString();
+                ingreNum = ingre_et.getText().toString();
                 Intent intent = new Intent(getApplicationContext(),select_menu.class);
                 myapp.setTagCheck(true);
                 startActivity(intent);
@@ -70,6 +89,28 @@ public class TagActivity extends AppCompatActivity {
             }
             else if ( i== R.id.rb_tag_defaultMin){
                 time ="default";
+            }
+        }
+    };
+    RadioGroup.OnCheckedChangeListener radioGroupButtonChangeListener2 = new RadioGroup.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(RadioGroup radioGroup, @IdRes int i) {
+            if(i==R.id.rb_tag_defaultIngre){
+                ingreBoolean = false;
+            }
+            else{
+                ingreBoolean =true;
+            }
+        }
+    };
+    RadioGroup.OnCheckedChangeListener radioGroupButtonChangeListener3 = new RadioGroup.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(RadioGroup radioGroup, @IdRes int i) {
+            if(i==R.id.rb_tag_defaultRecipe){
+                recipeBoolean =false;
+            }
+            else{
+                recipeBoolean = true;
             }
         }
     };
