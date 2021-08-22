@@ -196,8 +196,8 @@
 
     <ImageView
         android:id="@+id/iv_project"
-        android:layout_width="93dp"
-        android:layout_height="35dp"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="5dp"
