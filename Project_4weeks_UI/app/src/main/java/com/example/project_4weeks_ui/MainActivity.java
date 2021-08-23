@@ -38,8 +38,8 @@ public class MainActivity extends AppCompatActivity {
     String lon ; // 경도
     String lat ; // 위도
     String address ; // 주소
-    public static String selected_category_KR; // 선택된카테고리 한글
-    public static String selected_category_ENG; // 선택된카테고리 영어
+    String selected_category_KR; // 선택된카테고리 한글
+    String selected_category_ENG; // 선택된카테고리 영어
     // 한글과 영어 구분한 이유는 db에서 한글로 받아올 수 없어서 영어 이름도 넘겨줘야함
 
     TextView tv_temperature; // 온도출력 텍스트뷰
@@ -80,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 myapp.setCategory_KR((String) tv_noodle.getText());;
                 myapp.setCategory_ENG("noodle");
+                selected_category_KR = (String) tv_noodle.getText();
+                selected_category_ENG = "noodle";
                 Intent intent = new Intent(getApplicationContext(), select_menu.class);
                 startActivity(intent);
             }
@@ -89,6 +91,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 myapp.setCategory_KR((String) tv_bowl.getText());;
                 myapp.setCategory_ENG("bowl");
+                selected_category_KR = (String) tv_bowl.getText();
+                selected_category_ENG = "bowl";
                 Intent intent = new Intent(getApplicationContext(), select_menu.class);
                 startActivity(intent);
             }
@@ -98,6 +102,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 myapp.setCategory_KR((String) tv_maindish.getText());;
                 myapp.setCategory_ENG("maindish");
+                selected_category_KR = (String) tv_maindish.getText();
+                selected_category_ENG = "maindish";
                 Intent intent = new Intent(getApplicationContext(), select_menu.class);
                 startActivity(intent);
             }
@@ -107,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 myapp.setCategory_KR((String) tv_rice.getText());;
                 myapp.setCategory_ENG("rice");
+                selected_category_KR = (String) tv_rice.getText();
+                selected_category_ENG = "rice";
                 Intent intent = new Intent(getApplicationContext(), select_menu.class);
                 startActivity(intent);
             }
@@ -116,6 +124,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 myapp.setCategory_KR((String) tv_bread.getText());;
                 myapp.setCategory_ENG("bread");
+                selected_category_KR = (String) tv_bread.getText();
+                selected_category_ENG = "bread";
                 Intent intent = new Intent(getApplicationContext(), select_menu.class);
                 startActivity(intent);
             }
@@ -125,6 +135,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 myapp.setCategory_KR((String) tv_alcohol.getText());;
                 myapp.setCategory_ENG("alcohol");
+                selected_category_KR = (String) tv_alcohol.getText();
+                selected_category_ENG = "alcohol";
                 Intent intent = new Intent(getApplicationContext(), select_menu.class);
                 startActivity(intent);
             }
