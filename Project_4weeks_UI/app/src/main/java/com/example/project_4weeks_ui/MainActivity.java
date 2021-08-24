@@ -44,6 +44,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+    MyApp myapp;
     public static ArrayList<Menu> search_menu = new ArrayList<>(); // 키워드로 검색된 메뉴들
     public static String search_word; // 검색어
     public static String selected_category_KR; // 선택된카테고리 한글
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        myapp = ((MyApp)getApplicationContext());
 
         // 검색기능
         EditText etv_searching_word = (EditText) findViewById(R.id.etv_enter_searchingWord);
@@ -119,6 +121,8 @@ public class MainActivity extends AppCompatActivity {
         button_noodle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                myapp.setCategory_KR((String) tv_noodle.getText());;
+                myapp.setCategory_ENG("noodle");
                 selected_category_KR = (String) tv_noodle.getText();
                 selected_category_ENG = "noodle";
                 Intent intent = new Intent(getApplicationContext(), SelectMenuActivity.class);
@@ -128,6 +132,8 @@ public class MainActivity extends AppCompatActivity {
         button_bowl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                myapp.setCategory_KR((String) tv_bowl.getText());;
+                myapp.setCategory_ENG("bowl");
                 selected_category_KR = (String) tv_bowl.getText();
                 selected_category_ENG = "bowl";
                 Intent intent = new Intent(getApplicationContext(), SelectMenuActivity.class);
@@ -137,6 +143,8 @@ public class MainActivity extends AppCompatActivity {
         button_maindish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                myapp.setCategory_KR((String) tv_maindish.getText());;
+                myapp.setCategory_ENG("maindish");
                 selected_category_KR = (String) tv_maindish.getText();
                 selected_category_ENG = "maindish";
                 Intent intent = new Intent(getApplicationContext(), SelectMenuActivity.class);
@@ -146,6 +154,8 @@ public class MainActivity extends AppCompatActivity {
         button_rice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                myapp.setCategory_KR((String) tv_rice.getText());;
+                myapp.setCategory_ENG("rice");
                 selected_category_KR = (String) tv_rice.getText();
                 selected_category_ENG = "rice";
                 Intent intent = new Intent(getApplicationContext(), SelectMenuActivity.class);
@@ -155,6 +165,8 @@ public class MainActivity extends AppCompatActivity {
         button_bread.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                myapp.setCategory_KR((String) tv_bread.getText());;
+                myapp.setCategory_ENG("bread");
                 selected_category_KR = (String) tv_bread.getText();
                 selected_category_ENG = "bread";
                 Intent intent = new Intent(getApplicationContext(), SelectMenuActivity.class);
@@ -164,6 +176,8 @@ public class MainActivity extends AppCompatActivity {
         button_alcohol.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                myapp.setCategory_KR((String) tv_alcohol.getText());;
+                myapp.setCategory_ENG("alcohol");
                 selected_category_KR = (String) tv_alcohol.getText();
                 selected_category_ENG = "alcohol";
                 Intent intent = new Intent(getApplicationContext(), SelectMenuActivity.class);

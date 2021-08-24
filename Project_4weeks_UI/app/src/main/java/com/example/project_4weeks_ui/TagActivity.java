@@ -54,6 +54,8 @@ public class TagActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(),SelectMenuActivity.class);
                 myapp.setTagCheck(true);
                 startActivity(intent);
+                finish();
+
             }
         });
 
@@ -125,5 +127,6 @@ public class TagActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
     }
 }

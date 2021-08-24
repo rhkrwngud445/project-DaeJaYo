@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -23,6 +24,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -42,11 +45,35 @@ public class SelectMenuActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference databaseReference;
     private Button tagBt;
+    TextView mountText;
+    TextView ingreText;
+    TextView recipeText;
+    TextView timeText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_menu);
+        if(TagActivity.ingreBoolean==true){
+            ingreText = findViewById(R.id.tv_ingreCount);
+            ingreText.setVisibility(View.VISIBLE);
+            ingreText.setText(TagActivity.ingreNum+"개");
+        }
+        if(TagActivity.recipeBoolean==true){
+            recipeText = findViewById(R.id.tv_recipeCount);
+            recipeText.setVisibility(View.VISIBLE);
+            recipeText.setText(TagActivity.recipeNum + "개");
+        }
+        if(!TagActivity.mount.equals("default")){
+            mountText = findViewById(R.id.tv_mount);
+            mountText.setVisibility(View.VISIBLE);
+            mountText.setText(TagActivity.mount);
+        }
+        if(!TagActivity.time.equals("default")){
+            timeText = findViewById(R.id.tv_time);
+            timeText.setVisibility(View.VISIBLE);
+            timeText.setText(TagActivity.time);
+        }
         myapp = ((MyApp)getApplicationContext());
         tagBt = findViewById(R.id.bt_tag);
         initTagBt();
@@ -70,6 +97,7 @@ public class SelectMenuActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), AddMenuActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -111,6 +139,7 @@ public class SelectMenuActivity extends AppCompatActivity {
                 }
             });
         }
+
         else{
             callWithTag();
         }
@@ -151,6 +180,7 @@ public class SelectMenuActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(),TagActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
     }
@@ -172,8 +202,8 @@ public class SelectMenuActivity extends AppCompatActivity {
                                         // 레시피 단계 수 <= Tag
                                         menu.set_name(snapshot1.child("name").getValue().toString());
                                         menu.set_img_URL(snapshot1.child("img").getValue().toString());
-                                        menu.set_info1(snapshot1.child("info").child("info1").getValue().toString());
-                                        menu.set_info2(snapshot1.child("info").child("info2").getValue().toString());
+                                            menu.set_info1(snapshot1.child("info").child("info1").getValue().toString());
+                                            menu.set_info2(snapshot1.child("info").child("info2").getValue().toString());
                                         menu.set_info3(snapshot1.child("info").child("info3").getValue().toString());
                                         arrayList.add(menu);
                                     }
@@ -316,5 +346,11 @@ public class SelectMenuActivity extends AppCompatActivity {
             Query query =database.getReference().child(myapp.getCategory_ENG()).orderByChild("info/info1").equalTo(TagActivity.mount);
             query.addListenerForSingleValueEvent(postListener);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
     }
 }
